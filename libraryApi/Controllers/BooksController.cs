@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class BooksController : ControllerBase
@@ -14,35 +18,47 @@ public class BooksController : ControllerBase
         _context = context;
     }
 
+    private int GetUserId()
+    {
+        return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+    }
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
     {
-        return await _context.Books.ToListAsync();
+        var userId = GetUserId();
+        return await _context.Books.Where(b => b.UserId == userId).ToListAsync();
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Book>> GetBook(int id)
     {
-        var book = await _context.Books.FindAsync(id);
+        var userId = GetUserId();
+        var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId);
+
         if (book == null)
         {
             return NotFound();
         }
+
         return book;
     }
 
     [HttpPost]
     public async Task<ActionResult<Book>> PostBook(Book book)
     {
+        book.UserId = GetUserId();
         _context.Books.Add(book);
         await _context.SaveChangesAsync();
+
         return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> PutBook(int id, Book book)
     {
-        if (id != book.Id)
+        var userId = GetUserId();
+        if (id != book.Id || userId != book.UserId)
         {
             return BadRequest();
         }
@@ -71,7 +87,8 @@ public class BooksController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBook(int id)
     {
-        var book = await _context.Books.FindAsync(id);
+        var userId = GetUserId();
+        var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId);
         if (book == null)
         {
             return NotFound();
@@ -85,22 +102,7 @@ public class BooksController : ControllerBase
 
     private bool BookExists(int id)
     {
-        return _context.Books.Any(e => e.Id == id);
+        var userId = GetUserId();
+        return _context.Books.Any(e => e.Id == id && e.UserId == userId);
     }
-}
-
-public class Book
-{
-    public int Id { get; set; }
-    public required string Title { get; set; }
-    public required string Author { get; set; }
-    public int? Rating { get; set; }
-    public required string Status { get; set; } // e.g., "Read", "Want to Read", "Currently Reading"
-    public required string CoverImageUrl { get; set; }
-}
-
-public class BookContext : DbContext
-{
-    public BookContext(DbContextOptions<BookContext> options) : base(options) { }
-    public DbSet<Book> Books { get; set; }
 }

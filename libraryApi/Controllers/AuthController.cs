@@ -3,20 +3,25 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using libraryApi.Services; // Update this line
+// Remove the Models import if it doesn't exist
 
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly BookContext _context;
+    private readonly JwtService _jwtService;
 
-    public AuthController(BookContext context)
+    public AuthController(BookContext context, JwtService jwtService)
     {
         _context = context;
+        _jwtService = jwtService;
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<User>> Register(RegisterDto registerDto)
+    public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
     {
         if (await _context.Users.AnyAsync(u => u.Username == registerDto.Username))
         {
@@ -34,11 +39,15 @@ public class AuthController : ControllerBase
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return user;
+        return new UserDto
+        {
+            Username = user.Username,
+            Token = _jwtService.GenerateToken(user)
+        };
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<User>> Login(LoginDto loginDto)
+    public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
     {
         var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == loginDto.Username);
 
@@ -55,22 +64,32 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid password");
         }
 
-        return user;
+        return new UserDto
+        {
+            Username = user.Username,
+            Token = _jwtService.GenerateToken(user)
+        };
     }
+}
+
+public class UserDto
+{
+    public required string Username { get; set; }
+    public required string Token { get; set; }
 }
 
 public class RegisterDto
 {
     [Required]
-    public string Username { get; set; }
+    public required string Username { get; set; }
     [Required]
-    public string Password { get; set; }
+    public required string Password { get; set; }
 }
 
 public class LoginDto
 {
     [Required]
-    public string Username { get; set; }
+    public required string Username { get; set; }
     [Required]
-    public string Password { get; set; }
+    public required string Password { get; set; }
 }

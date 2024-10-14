@@ -1,0 +1,7 @@
+/workspaces/cs-libraryshelf/libraryApi/obj/Debug/net8.0/libraryApi.csproj.AssemblyReference.cache
+/workspaces/cs-libraryshelf/libraryApi/obj/Debug/net8.0/libraryApi.GeneratedMSBuildEditorConfig.editorconfig
+/workspaces/cs-libraryshelf/libraryApi/obj/Debug/net8.0/libraryApi.AssemblyInfoInputs.cache
+/workspaces/cs-libraryshelf/libraryApi/obj/Debug/net8.0/libraryApi.AssemblyInfo.cs
+/workspaces/cs-libraryshelf/libraryApi/obj/Debug/net8.0/libraryApi.csproj.CoreCompileInputs.cache
+/workspaces/cs-libraryshelf/libraryApi/obj/Debug/net8.0/libraryApi.MvcApplicationPartsAssemblyInfo.cache
+/workspaces/cs-libraryshelf/libraryApi/obj/Debug/net8.0/libraryApi.sourcelink.json
