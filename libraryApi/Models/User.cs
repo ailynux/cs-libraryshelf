@@ -7,10 +7,10 @@ public class User
     public int Id { get; set; }
     [Required]
     [StringLength(50, MinimumLength = 3)]
-    public string Username { get; set; }
+    public required string Username { get; set; }
     [Required]
-    public string PasswordHash { get; set; }
-    public List<Book> Books { get; set; }
+    public required string PasswordHash { get; set; }
+    public required List<Book> Books { get; set; }
 }
 
 public class Book
@@ -22,7 +22,7 @@ public class Book
     public required string Status { get; set; }
     public required string CoverImageUrl { get; set; }
     public int UserId { get; set; }
-    public User User { get; set; }
+    public required User User { get; set; }
 }
 
 public class BookContext : DbContext

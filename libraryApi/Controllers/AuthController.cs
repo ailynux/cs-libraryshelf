@@ -33,7 +33,8 @@ public class AuthController : ControllerBase
         var user = new User
         {
             Username = registerDto.Username,
-            PasswordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)))
+            PasswordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password))),
+            Books = new List<Book>() // Initialize Books with an empty list
         };
 
         _context.Users.Add(user);

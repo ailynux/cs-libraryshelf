@@ -18,11 +18,9 @@ public class BooksController : ControllerBase
         _context = context;
     }
 
-    private int GetUserId()
-    {
-        return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-    }
-
+    private int GetUserId() => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+    ?? throw new InvalidOperationException("User ID claim is missing or has no value."));
+    
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
     {
